@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mediamarket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: tienda de una sola página — barra fija, hero con ficha técnica, catálogo en rejilla filtrable, servicios, contacto. Productos presentados como etiquetas de empaque de componentes. */
+:root {
+  --bg: #F2F4F6;
+  --surface: #FFFFFF;
+  --ink: #11161D;
+  --muted: #5B6672;
+  --line: #D7DDE3;
+  --accent: #F2541B;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #FDE6DC;
+  --ok: #1F8A5B;
+  --warn: #B26A00;
+  --display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1217; --surface: #161C23; --ink: #E9EDF1; --muted: #93A0AD; --line: #28313B;
+    --accent: #FF6A33; --accent-ink: #140A05; --accent-soft: #3A1E12; --ok: #4CC38A; --warn: #E5A23A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1217; --surface: #161C23; --ink: #E9EDF1; --muted: #93A0AD; --line: #28313B;
+  --accent: #FF6A33; --accent-ink: #140A05; --accent-soft: #3A1E12; --ok: #4CC38A; --warn: #E5A23A;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; animation: none !important; } }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+a { color: inherit; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* Barra superior */
+.topline { background: var(--ink); color: var(--bg); font-family: var(--mono); font-size: 12px; }
+.topline .wrap { display: flex; gap: 24px; justify-content: space-between; padding-block: 7px; flex-wrap: wrap; }
+header.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+header.bar .wrap { display: flex; align-items: center; gap: 20px; padding-block: 14px; }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo-mark { width: 30px; height: 30px; border-radius: 4px; background: var(--accent); display: grid; place-items: center; color: var(--accent-ink); }
+.logo-word { font-family: var(--display); font-stretch: 118%; font-weight: 800; font-size: 21px; letter-spacing: -.01em; }
+.logo-word span { color: var(--accent); }
+nav.main { display: flex; gap: 22px; margin-left: auto; }
+nav.main a { text-decoration: none; font-weight: 500; color: var(--muted); }
+nav.main a:hover { color: var(--ink); }
+.cart-btn { display: flex; align-items: center; gap: 8px; border: 1px solid var(--ink); background: transparent; border-radius: 999px; padding: 7px 14px; font-weight: 600; }
+.cart-btn:hover { background: var(--ink); color: var(--bg); }
+.cart-count { font-family: var(--mono); background: var(--accent); color: var(--accent-ink); border-radius: 999px; min-width: 22px; height: 22px; display: grid; place-items: center; font-size: 12px; padding-inline: 6px; }
+@media (max-width: 720px) { nav.main { display: none; } .cart-btn { margin-left: auto; } .topline .hide-sm { display: none; } }
+
+/* Hero */
+.hero { padding-block: 56px 40px; }
+.hero .wrap { display: grid; grid-template-columns: 1.15fr .85fr; gap: 48px; align-items: center; }
+.hero h1 { font-stretch: 112%; font-weight: 800; font-size: clamp(38px, 6vw, 72px); line-height: .98; letter-spacing: -.025em; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero p.lead { max-width: 52ch; color: var(--muted); font-size: 17px; margin: 20px 0 28px; }
+.cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn { border: 1px solid transparent; border-radius: var(--radius); padding: 12px 20px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-primary:hover { filter: brightness(1.06); }
+.btn-ghost { border-color: var(--line); background: var(--surface); }
+.btn-ghost:hover { border-color: var(--ink); }
+
+.spec { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; min-width: 0; }
+.spec-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px dashed var(--line); }
+.tag { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; padding: 3px 8px; border-radius: 3px; background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+.spec-art { color: var(--ink); padding: 18px 24px 6px; }
+.spec-art svg { width: 100%; height: auto; max-height: 180px; display: block; }
+.spec h3 { font-size: 22px; font-stretch: 105%; padding: 8px 16px 4px; }
+.spec dl { margin: 0; padding: 4px 16px 12px; display: grid; grid-template-columns: auto 1fr; font-family: var(--mono); font-size: 13px; }
+.spec dt, .spec dd { padding: 7px 0; border-bottom: 1px solid var(--line); margin: 0; }
+.spec dt { color: var(--muted); padding-right: 16px; }
+.spec dd { text-align: right; }
+.spec-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px 16px; flex-wrap: wrap; }
+.price { font-family: var(--display); font-weight: 800; font-size: 26px; font-variant-numeric: tabular-nums; }
+.price s { font-family: var(--mono); font-weight: 400; font-size: 13px; color: var(--muted); margin-left: 6px; }
+@media (max-width: 860px) { .hero .wrap { grid-template-columns: 1fr; gap: 32px; } }
+
+/* Franja de servicios */
+.facts { border-block: 1px solid var(--line); background: var(--surface); }
+.facts .wrap { display: grid; grid-template-columns: repeat(4, 1fr); }
+.fact { padding: 18px 18px; border-left: 1px solid var(--line); display: grid; gap: 2px; }
+.fact:first-child { border-left: 0; padding-left: 0; }
+.fact b { font-weight: 600; }
+.fact span { color: var(--muted); font-size: 13px; }
+@media (max-width: 860px) { .facts .wrap { grid-template-columns: 1fr 1fr; } .fact { border-left: 0; padding-left: 0; } }
+@media (max-width: 460px) { .facts .wrap { grid-template-columns: 1fr; } .fact { padding-block: 12px; } }
+
+/* Catálogo */
+section.block { padding-block: 64px 16px; }
+.block-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 22px; }
+.block-head h2 { font-size: clamp(28px, 4vw, 40px); font-stretch: 110%; font-weight: 800; letter-spacing: -.02em; }
+.tools { display: flex; gap: 10px; flex-wrap: wrap; }
+.field { border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 9px 12px; font: inherit; color: var(--ink); min-width: 0; }
+.field:focus { outline: none; border-color: var(--accent); }
+#q { width: 240px; max-width: 100%; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; font-size: 14px; display: inline-flex; gap: 8px; align-items: center; }
+.chip small { font-family: var(--mono); color: var(--muted); font-size: 11px; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip[aria-pressed="true"] small { color: inherit; opacity: .7; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); display: flex; flex-direction: column; min-width: 0; transition: border-color .15s, transform .15s; }
+.card:hover { border-color: var(--ink); transform: translateY(-2px); }
+.card-top { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; font-family: var(--mono); font-size: 11px; color: var(--muted); border-bottom: 1px dashed var(--line); gap: 8px; }
+.card-art { color: var(--ink); padding: 18px 28px 8px; aspect-ratio: 3 / 2; max-width: 100%; display: grid; place-items: center; }
+.card-art svg { width: 100%; height: 100%; }
+.card-body { padding: 4px 14px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.card-body h3 { font-family: var(--body); font-weight: 600; font-size: 15.5px; line-height: 1.35; }
+.card-specs { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.card-specs li { font-family: var(--mono); font-size: 11px; border: 1px solid var(--line); border-radius: 3px; padding: 2px 6px; color: var(--muted); }
+.card-foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 8px; }
+.card .price { font-size: 21px; }
+.add { border: 1px solid var(--ink); background: transparent; border-radius: var(--radius); padding: 8px 12px; font-weight: 600; font-size: 14px; white-space: nowrap; }
+.add:hover { background: var(--ink); color: var(--bg); }
+.add.done { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.stock { display: inline-flex; align-items: center; gap: 6px; }
+.stock::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
+.stock.low { color: var(--warn); }
+.stock.low::before { background: var(--warn); }
+.empty { grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: var(--radius); }
+
+/* Servicios */
+.services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.service { padding: 26px 24px; border-left: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.service:first-child { border-left: 0; }
+.service h3 { font-size: 20px; font-stretch: 108%; font-weight: 700; }
+.service p { margin: 0; color: var(--muted); max-width: 40ch; }
+.service .mono { font-size: 12px; color: var(--accent); }
+@media (max-width: 760px) { .services { grid-template-columns: 1fr; } .service { border-left: 0; border-top: 1px solid var(--line); } .service:first-child { border-top: 0; } }
+
+/* Contacto */
+.contact { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.contact form { display: grid; gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; min-width: 0; }
+.contact label { display: grid; gap: 6px; font-weight: 500; font-size: 14px; }
+.contact textarea { min-height: 110px; resize: vertical; }
+.form-ok { font-size: 14px; color: var(--ok); }
+.info { display: grid; gap: 0; align-content: start; min-width: 0; }
+.info-row { display: grid; grid-template-columns: 120px 1fr; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.info-row:first-child { border-top: 1px solid var(--line); }
+.info-row dt { color: var(--muted); font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; padding-top: 2px; }
+.info-row dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 760px) { .contact { grid-template-columns: 1fr; } .info-row { grid-template-columns: 1fr; gap: 2px; } }
+
+footer { margin-top: 72px; border-top: 1px solid var(--line); padding-block: 28px; color: var(--muted); font-size: 13px; }
+footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+/* Carrito */
+.scrim { position: fixed; inset: 0; background: rgba(8, 10, 14, .45); z-index: 40; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 100%); background: var(--surface); border-left: 1px solid var(--line); z-index: 41; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); transform: translateX(100%); transition: transform .22s ease; }
+.drawer.open { transform: none; }
+.drawer-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+.drawer-head h2 { font-size: 22px; font-stretch: 110%; }
+.icon-btn { border: 1px solid var(--line); background: transparent; border-radius: var(--radius); width: 36px; height: 36px; display: grid; place-items: center; }
+.lines { flex: 1; overflow-y: auto; padding: 8px 20px; }
+.line { display: grid; grid-template-columns: 56px 1fr auto; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); align-items: center; }
+.line-art { color: var(--ink); background: var(--bg); border-radius: 4px; aspect-ratio: 1; display: grid; place-items: center; padding: 6px; }
+.line-art svg { width: 100%; height: auto; }
+.line-name { font-weight: 500; font-size: 14px; line-height: 1.3; min-width: 0; }
+.qty { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 4px; margin-top: 6px; }
+.qty button { border: 0; background: transparent; width: 28px; height: 26px; }
+.qty span { font-family: var(--mono); min-width: 22px; text-align: center; font-size: 13px; }
+.line-price { font-family: var(--mono); font-size: 14px; text-align: right; }
+.remove { border: 0; background: none; color: var(--muted); font-size: 12px; text-decoration: underline; padding: 0; margin-top: 6px; }
+.drawer-foot { border-top: 1px solid var(--line); padding: 16px 20px 20px; display: grid; gap: 10px; }
+.ship-bar { height: 6px; background: var(--bg); border-radius: 999px; overflow: hidden; border: 1px solid var(--line); }
+.ship-bar i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+.ship-msg { font-size: 13px; color: var(--muted); }
+.sum { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 14px; }
+.sum.total { font-family: var(--display); font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; }
+.note { font-size: 12px; color: var(--muted); }
+.cart-empty { text-align: center; color: var(--muted); padding: 48px 12px; }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: var(--radius); font-size: 14px; z-index: 50; max-width: calc(100% - 32px); }
+</style>
+</head>
+<body>
+<div class="topline"><div class="wrap"><span>Envío gratis en Lima desde S/ 199</span><span class="hide-sm">Lun–Sáb 9:00–20:00 · Atención por WhatsApp</span></div></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="logo" href="#inicio" aria-label="Mediamarket, inicio">
+      <span class="logo-mark" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5l8 9 8-9v14"/></svg></span>
+      <span class="logo-word">Media<span>market</span></span>
+    </a>
+    <nav class="main" aria-label="Principal">
+      <a href="#catalogo">Catálogo</a>
+      <a href="#catalogo" data-jump="ofertas">Ofertas</a>
+      <a href="#servicios">Servicios</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <button class="cart-btn" id="openCart" aria-label="Abrir carrito">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h9.2a1 1 0 0 0 1-.76L20.5 8H6.2"/><circle cx="9" cy="20" r="1.3"/><circle cx="18" cy="20" r="1.3"/></svg>
+      Carrito <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+</header>
+
+<main id="inicio">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Accesorios y componentes para PC · Lima, Perú</p>
+        <h1>Todo lo que va <em>conectado</em> a tu computadora.</h1>
+        <p class="lead">Teclados, monitores, almacenamiento, audio y cables con garantía oficial. Te asesoramos para que cada pieza sea compatible con tu equipo antes de comprar.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#catalogo">Ver catálogo</a>
+          <a class="btn btn-ghost" href="#catalogo" data-jump="ofertas">Ofertas de la semana</a>
+        </div>
+      </div>
+      <article class="spec" aria-label="Producto destacado">
+        <div class="spec-head"><span class="tag">Destacado</span><span class="eyebrow">SKU MM-MON-27Q</span></div>
+        <div class="spec-art" id="heroArt"></div>
+        <h3>Monitor 27" IPS QHD 165 Hz</h3>
+        <dl>
+          <dt>Resolución</dt><dd>2560 × 1440</dd>
+          <dt>Tasa de refresco</dt><dd>165 Hz</dd>
+          <dt>Respuesta</dt><dd>1 ms GtG</dd>
+          <dt>Conexiones</dt><dd>2× HDMI 2.0 · DP 1.4</dd>
+        </dl>
+        <div class="spec-foot">
+          <span class="price">S/ 1,099<s>S/ 1,299</s></span>
+          <button class="btn btn-primary" data-add="mon27">Agregar al carrito</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <div class="facts">
+    <div class="wrap">
+      <div class="fact"><b>Envío en 24–48 h</b><span>Lima Metropolitana y Callao</span></div>
+      <div class="fact"><b>Garantía de 12 meses</b><span>Cambio directo en tienda</span></div>
+      <div class="fact"><b>Yape, Plin y tarjetas</b><span>Hasta 6 cuotas sin intereses</span></div>
+      <div class="fact"><b>Retiro en tienda</b><span>Listo en 2 horas</span></div>
+    </div>
+  </div>
+
+  <section class="block" id="catalogo">
+    <div class="wrap">
+      <div class="block-head">
+        <div>
+          <p class="eyebrow">Catálogo</p>
+          <h2>Productos</h2>
+        </div>
+        <div class="tools">
+          <label class="sr" for="q" hidden>Buscar</label>
+          <input class="field" id="q" type="search" placeholder="Buscar: SSD, teclado, 27&quot;…" aria-label="Buscar productos">
+          <select class="field" id="sort" aria-label="Ordenar">
+            <option value="rel">Destacados</option>
+            <option value="asc">Precio: menor a mayor</option>
+            <option value="desc">Precio: mayor a menor</option>
+          </select>
+        </div>
+      </div>
+      <div class="chips" id="chips" role="group" aria-label="Filtrar por categoría"></div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </section>
+
+  <section class="block" id="servicios">
+    <div class="wrap">
+      <div class="block-head"><div><p class="eyebrow">Servicios</p><h2>Más que una tienda</h2></div></div>
+      <div class="services">
+        <div class="service"><span class="mono">Asesoría</span><h3>Compatibilidad verificada</h3><p>Antes de vender una memoria, un SSD o una fuente, revisamos con tu modelo de placa o laptop que la pieza sea compatible.</p></div>
+        <div class="service"><span class="mono">Taller</span><h3>Instalación y armado</h3><p>Instalamos RAM, discos y tarjetas en tienda. También armamos tu PC completa y la entregamos probada.</p></div>
+        <div class="service"><span class="mono">Empresas</span><h3>Ventas corporativas</h3><p>Cotizaciones por volumen, factura electrónica y entrega programada para oficinas y centros educativos.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="contacto">
+    <div class="wrap">
+      <div class="block-head"><div><p class="eyebrow">Contacto</p><h2>Escríbenos</h2></div></div>
+      <div class="contact">
+        <form id="contactForm" novalidate>
+          <label for="cName">Nombre<input class="field" id="cName" name="nombre" required autocomplete="name"></label>
+          <label for="cMail">Correo electrónico<input class="field" id="cMail" name="correo" type="email" required autocomplete="email"></label>
+          <label for="cMsg">¿En qué te ayudamos?<textarea class="field" id="cMsg" name="mensaje" required placeholder="Ej.: Busco un SSD para una laptop de 2021"></textarea></label>
+          <button class="btn btn-primary" type="submit">Enviar consulta</button>
+          <p class="form-ok" id="formMsg" hidden></p>
+        </form>
+        <dl class="info">
+          <div class="info-row"><dt>Tienda</dt><dd>Av. Arequipa 1234, Lince, Lima</dd></div>
+          <div class="info-row"><dt>Horario</dt><dd>Lunes a sábado, 9:00 a 20:00<br>Domingos, 10:00 a 14:00</dd></div>
+          <div class="info-row"><dt>Teléfono</dt><dd class="mono">(01) 555-0123</dd></div>
+          <div class="info-row"><dt>WhatsApp</dt><dd class="mono">+51 999 000 123</dd></div>
+          <div class="info-row"><dt>Correo</dt><dd class="mono">ventas@mediamarket.pe</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Mediamarket · Accesorios y componentes para computadoras</span>
+    <span>Precios en soles, incluyen IGV.</span>
+  </div>
+</footer>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" aria-label="Carrito de compras" aria-hidden="true">
+  <div class="drawer-head">
+    <h2>Tu carrito</h2>
+    <button class="icon-btn" id="closeCart" aria-label="Cerrar carrito"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="lines" id="lines"></div>
+  <div class="drawer-foot" id="drawerFoot"></div>
+</aside>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const ART = {
+  keyboard: () => {
+    let k = '';
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 10; c++) k += `<rect x="${16 + c * 9}" y="${28 + r * 9}" width="6" height="6" rx="1"/>`;
+    return `<rect x="8" y="20" width="104" height="44" rx="6"/>${k}<rect x="34" y="55" width="52" height="5" rx="1"/>`;
+  },
+  mouse: () => `<rect x="42" y="8" width="36" height="64" rx="18"/><line x1="60" y1="8" x2="60" y2="32"/><rect x="57" y="16" width="6" height="11" rx="3"/><line x1="42" y1="32" x2="78" y2="32"/>`,
+  headset: () => `<path d="M28 52V40a32 32 0 0 1 64 0v12"/><rect x="20" y="46" width="17" height="26" rx="5"/><rect x="83" y="46" width="17" height="26" rx="5"/><path d="M28 70c0 6 8 8 18 8"/><circle cx="48" cy="78" r="2"/>`,
+  monitor: () => `<rect x="12" y="6" width="96" height="56" rx="4"/><rect x="18" y="12" width="84" height="44" rx="1" opacity=".35"/><line x1="60" y1="62" x2="60" y2="71"/><line x1="42" y1="74" x2="78" y2="74"/>`,
+  ssd: () => `<rect x="10" y="26" width="100" height="28" rx="3"/><rect x="18" y="32" width="20" height="16" rx="1"/><rect x="44" y="32" width="20" height="16" rx="1"/><rect x="70" y="34" width="12" height="12" rx="1"/><line x1="100" y1="30" x2="100" y2="50"/><circle cx="16" cy="40" r="2"/>`,
+  ram: () => `<rect x="8" y="24" width="104" height="30" rx="2"/>${[0,1,2,3,4,5,6,7].map(i => `<rect x="${14 + i * 12}" y="30" width="9" height="12" rx="1"/>`).join('')}<path d="M8 54h46v-4h6v4h52"/>`,
+  webcam: () => `<circle cx="60" cy="32" r="22"/><circle cx="60" cy="32" r="9"/><circle cx="60" cy="32" r="3"/><path d="M50 54l-6 16h32l-6-16"/>`,
+  hub: () => `<rect x="34" y="26" width="72" height="28" rx="7"/><path d="M34 40H12"/><rect x="6" y="36" width="8" height="8" rx="2"/><rect x="44" y="35" width="10" height="5" rx="1"/><rect x="58" y="35" width="10" height="5" rx="1"/><rect x="72" y="35" width="12" height="7" rx="1"/><rect x="88" y="35" width="10" height="4" rx="1"/>`,
+  laptop: () => `<path d="M26 14h68v42H26z"/><path d="M14 62h92l-6 8H20z"/><path d="M40 56l-6 6M86 56l6 6" opacity=".5"/>`,
+  pad: () => `<rect x="8" y="20" width="104" height="44" rx="8"/><rect x="13" y="25" width="94" height="34" rx="5" opacity=".35"/><rect x="76" y="32" width="14" height="22" rx="7"/>`,
+  speakers: () => `<rect x="18" y="12" width="32" height="58" rx="4"/><circle cx="34" cy="50" r="10"/><circle cx="34" cy="26" r="5"/><rect x="70" y="12" width="32" height="58" rx="4"/><circle cx="86" cy="50" r="10"/><circle cx="86" cy="26" r="5"/>`
+};
+const svg = (type) => `<svg viewBox="0 0 120 80" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ART[type]()}</svg>`;
+
+const CATS = { perifericos: 'Periféricos', monitores: 'Monitores', audio: 'Audio y video', almacenamiento: 'Almacenamiento', componentes: 'Componentes', accesorios: 'Accesorios' };
+
+const PRODUCTS = [
+  { id: 'kb-tkl', name: 'Teclado mecánico TKL, switches lineales rojos', cat: 'perifericos', art: 'keyboard', price: 249, old: 299, stock: 14, specs: ['87 teclas', 'USB-C', 'Layout ES'] },
+  { id: 'ms-erg', name: 'Mouse inalámbrico ergonómico', cat: 'perifericos', art: 'mouse', price: 119, stock: 22, specs: ['4000 DPI', '2.4 GHz + BT', '70 h batería'] },
+  { id: 'hs-71', name: 'Audífonos 7.1 con micrófono desmontable', cat: 'audio', art: 'headset', price: 189, stock: 3, specs: ['Drivers 50 mm', 'USB / 3.5 mm'] },
+  { id: 'mon27', name: 'Monitor 27" IPS QHD 165 Hz', cat: 'monitores', art: 'monitor', price: 1099, old: 1299, stock: 6, specs: ['2560×1440', '1 ms', 'DP 1.4'] },
+  { id: 'ssd1t', name: 'SSD NVMe M.2 de 1 TB, PCIe 4.0', cat: 'almacenamiento', art: 'ssd', price: 329, stock: 18, specs: ['7000 MB/s', 'M.2 2280', '5 años'] },
+  { id: 'ram32', name: 'Memoria RAM DDR5 32 GB (2 × 16 GB)', cat: 'componentes', art: 'ram', price: 459, stock: 9, specs: ['6000 MHz', 'CL36', 'XMP 3.0'] },
+  { id: 'cam1080', name: 'Cámara web Full HD con micrófono dual', cat: 'audio', art: 'webcam', price: 159, stock: 11, specs: ['1080p 60 fps', 'Autoenfoque'] },
+  { id: 'hub7', name: 'Hub USB-C 7 en 1 con HDMI 4K', cat: 'accesorios', art: 'hub', price: 139, old: 169, stock: 25, specs: ['PD 100 W', 'SD/microSD', '3× USB-A'] },
+  { id: 'stand', name: 'Soporte de aluminio para laptop', cat: 'accesorios', art: 'laptop', price: 89, stock: 30, specs: ['10" a 17"', '6 alturas'] },
+  { id: 'padxl', name: 'Mousepad XL de tela, bordes cosidos', cat: 'accesorios', art: 'pad', price: 59, old: 75, stock: 40, specs: ['900 × 400 mm', 'Base antideslizante'] },
+  { id: 'spk20', name: 'Parlantes 2.0 USB de escritorio', cat: 'audio', art: 'speakers', price: 129, stock: 2, specs: ['20 W RMS', 'Bluetooth 5.3'] },
+  { id: 'mon24', name: 'Monitor 24" Full HD 100 Hz', cat: 'monitores', art: 'monitor', price: 549, stock: 12, specs: ['1920×1080', 'IPS', 'HDMI + VGA'] },
+  { id: 'ssd2t', name: 'SSD SATA 2.5" de 2 TB', cat: 'almacenamiento', art: 'ssd', price: 419, stock: 7, specs: ['560 MB/s', 'SATA III'] },
+  { id: 'kb-combo', name: 'Kit teclado y mouse inalámbrico para oficina', cat: 'perifericos', art: 'keyboard', price: 99, stock: 33, specs: ['Silencioso', 'Layout ES'] }
+];
+
+const money = (n) => 'S/ ' + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const FREE_SHIP = 199, SHIP = 15;
+
+let state = { cat: 'todos', q: '', sort: 'rel' };
+let cart = {};
+try { cart = JSON.parse(localStorage.getItem('mm-cart') || '{}') || {}; } catch (e) { cart = {}; }
+const save = () => { try { localStorage.setItem('mm-cart', JSON.stringify(cart)); } catch (e) {} };
+
+document.getElementById('heroArt').innerHTML = svg('monitor');
+
+function renderChips() {
+  const counts = { todos: PRODUCTS.length, ofertas: PRODUCTS.filter(p => p.old).length };
+  Object.keys(CATS).forEach(c => counts[c] = PRODUCTS.filter(p => p.cat === c).length);
+  const list = [['todos', 'Todos'], ['ofertas', 'Ofertas'], ...Object.entries(CATS)];
+  document.getElementById('chips').innerHTML = list.map(([k, v]) =>
+    `<button class="chip" data-cat="${k}" aria-pressed="${state.cat === k}">${v}<small>${counts[k]}</small></button>`).join('');
+}
+
+function renderGrid() {
+  const q = state.q.trim().toLowerCase();
+  let items = PRODUCTS.filter(p =>
+    (state.cat === 'todos' || (state.cat === 'ofertas' ? p.old : p.cat === state.cat)) &&
+    (!q || (p.name + ' ' + p.specs.join(' ') + ' ' + CATS[p.cat]).toLowerCase().includes(q)));
+  if (state.sort === 'asc') items = [...items].sort((a, b) => a.price - b.price);
+  if (state.sort === 'desc') items = [...items].sort((a, b) => b.price - a.price);
+  const grid = document.getElementById('grid');
+  if (!items.length) { grid.innerHTML = `<div class="empty">No encontramos productos para “${state.q.replace(/[<>&"]/g, '')}”. Prueba con otra palabra o elige “Todos”.</div>`; return; }
+  grid.innerHTML = items.map(p => `
+    <article class="card">
+      <div class="card-top"><span>${CATS[p.cat]}</span>${p.old ? `<span class="tag">−${Math.round((1 - p.price / p.old) * 100)}%</span>` : `<span>MM-${p.id.toUpperCase()}</span>`}</div>
+      <div class="card-art">${svg(p.art)}</div>
+      <div class="card-body">
+        <h3>${p.name}</h3>
+        <ul class="card-specs">${p.specs.map(s => `<li>${s}</li>`).join('')}</ul>
+        <span class="mono stock ${p.stock <= 3 ? 'low' : ''}" style="font-size:12px">${p.stock <= 3 ? `Quedan ${p.stock}` : 'En stock'}</span>
+        <div class="card-foot">
+          <span class="price">${money(p.price)}${p.old ? `<s>${money(p.old)}</s>` : ''}</span>
+          <button class="add" data-add="${p.id}">Agregar</button>
+        </div>
+      </div>
+    </article>`).join('');
+}
+
+function cartItems() { return Object.entries(cart).map(([id, qty]) => ({ p: PRODUCTS.find(x => x.id === id), qty })).filter(x => x.p && x.qty > 0); }
+
+function renderCart() {
+  const items = cartItems();
+  const count = items.reduce((s, x) => s + x.qty, 0);
+  document.getElementById('cartCount').textContent = count;
+  const lines = document.getElementById('lines'), foot = document.getElementById('drawerFoot');
+  if (!items.length) {
+    lines.innerHTML = `<div class="cart-empty"><p>Tu carrito está vacío.</p><p class="note">Agrega productos desde el catálogo.</p></div>`;
+    foot.innerHTML = `<a class="btn btn-ghost" href="#catalogo" id="goShop" style="justify-content:center">Ir al catálogo</a>`;
+    return;
+  }
+  const sub = items.reduce((s, x) => s + x.p.price * x.qty, 0);
+  const ship = sub >= FREE_SHIP ? 0 : SHIP;
+  const pct = Math.min(100, sub / FREE_SHIP * 100);
+  lines.innerHTML = items.map(({ p, qty }) => `
+    <div class="line">
+      <div class="line-art">${svg(p.art)}</div>
+      <div style="min-width:0">
+        <div class="line-name">${p.name}</div>
+        <div class="qty"><button data-dec="${p.id}" aria-label="Quitar uno">−</button><span>${qty}</span><button data-inc="${p.id}" aria-label="Agregar uno">+</button></div>
+        <div><button class="remove" data-rm="${p.id}">Eliminar</button></div>
+      </div>
+      <div class="line-price">${money(p.price * qty)}</div>
+    </div>`).join('');
+  foot.innerHTML = `
+    <div class="ship-bar"><i style="width:${pct}%"></i></div>
+    <div class="ship-msg">${ship ? `Te faltan ${money(FREE_SHIP - sub)} para el envío gratis en Lima.` : 'Tu pedido tiene envío gratis en Lima.'}</div>
+    <div class="sum"><span>Subtotal</span><span>${money(sub)}</span></div>
+    <div class="sum"><span>Envío</span><span>${ship ? money(ship) : 'Gratis'}</span></div>
+    <div class="sum total"><span>Total</span><span>${money(sub + ship)}</span></div>
+    <button class="btn btn-primary" id="checkout" style="justify-content:center">Finalizar compra</button>
+    <p class="note" id="checkoutNote">Precios incluyen IGV. Pagos con Yape, Plin, tarjeta o transferencia.</p>`;
+}
+
+let toastTimer;
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 2200); }
+
+function add(id) {
+  cart[id] = (cart[id] || 0) + 1; save(); renderCart();
+  const p = PRODUCTS.find(x => x.id === id);
+  toast(`Agregado: ${p.name}`);
+  document.querySelectorAll(`[data-add="${id}"]`).forEach(b => { b.classList.add('done'); const old = b.textContent; b.textContent = '✓ Agregado'; setTimeout(() => { b.classList.remove('done'); b.textContent = old; }, 1200); });
+}
+
+const drawer = document.getElementById('drawer'), scrim = document.getElementById('scrim');
+function openCart() { scrim.hidden = false; drawer.classList.add('open'); drawer.setAttribute('aria-hidden', 'false'); document.getElementById('closeCart').focus(); }
+function closeCart() { scrim.hidden = true; drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); }
+
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('button, a');
+  if (!t) return;
+  if (t.dataset.add) return add(t.dataset.add);
+  if (t.dataset.cat) { state.cat = t.dataset.cat; renderChips(); renderGrid(); return; }
+  if (t.dataset.jump) { state.cat = t.dataset.jump; renderChips(); renderGrid(); return; }
+  if (t.dataset.inc) { cart[t.dataset.inc]++; save(); return renderCart(); }
+  if (t.dataset.dec) { cart[t.dataset.dec]--; if (cart[t.dataset.dec] <= 0) delete cart[t.dataset.dec]; save(); return renderCart(); }
+  if (t.dataset.rm) { delete cart[t.dataset.rm]; save(); return renderCart(); }
+  if (t.id === 'openCart') return openCart();
+  if (t.id === 'closeCart') return closeCart();
+  if (t.id === 'goShop') return closeCart();
+  if (t.id === 'checkout') { document.getElementById('checkoutNote').textContent = 'Esta es una tienda de demostración: el pago en línea aún no está habilitado. Para concretar tu pedido escríbenos por WhatsApp al +51 999 000 123.'; }
+});
+scrim.addEventListener('click', closeCart);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCart(); });
+
+document.getElementById('q').addEventListener('input', (e) => { state.q = e.target.value; renderGrid(); });
+document.getElementById('sort').addEventListener('change', (e) => { state.sort = e.target.value; renderGrid(); });
+
+document.getElementById('contactForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const f = e.target, msg = document.getElementById('formMsg');
+  const name = f.nombre.value.trim(), mail = f.correo.value.trim(), body = f.mensaje.value.trim();
+  msg.hidden = false;
+  if (!name || !body || !/^\S+@\S+\.\S+$/.test(mail)) { msg.style.color = 'var(--warn)'; msg.textContent = 'Completa tu nombre, un correo válido y tu consulta.'; return; }
+  msg.style.color = 'var(--ok)';
+  msg.textContent = `Gracias, ${name}. Tu consulta quedó lista. En esta versión de demostración no se envía; escríbenos a ventas@mediamarket.pe o por WhatsApp.`;
+  f.reset();
+});
+
+renderChips(); renderGrid(); renderCart();
+</script>
+</body>
+</html>
